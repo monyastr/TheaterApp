@@ -1,0 +1,67 @@
+﻿
+
+@{
+    ViewBag.Title = "Movies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<table class="display" id="moviesTable">
+    <thead>
+        <tr>
+            <th>
+                MovieName
+            </th>
+            <th>
+                Logo
+            </th>            
+            <th>
+                Rate
+            </th>
+
+        </tr>
+    </thead>
+
+
+
+</table>
+@section scripts{
+    <script src="~/scripts/datatables/jquery.datatables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#moviesTable").DataTable({
+                "ajax": {
+                    "url": "/Home/Index",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "MovieName", "name": "MovieName" },
+                    { "data": "Logo", "name": "Logo" },
+                    {
+                        "data": "Rates",
+                        "name": "Rate",
+                        "render": function (val, type, row) {
+                            let moviesRate = val.reduce(function (sum, val) { return sum.MovieRate + val.MovieRate });
+                            moviesRate /= Object.keys(val).length;
+                            return moviesRate ? moviesRate : '';
+                        },
+                        "defaultContent": ""
+                    },
+                    
+
+                ],
+                "serverSide": "true",
+                "order": [0,"asc"],
+                "processing": "true"
+
+            });
+
+        });
+   
+
+    </script>
+}
+
+

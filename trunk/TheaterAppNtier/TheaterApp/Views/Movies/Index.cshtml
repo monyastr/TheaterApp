@@ -1,0 +1,107 @@
+﻿@model IEnumerable<EntityLayer.Movie>
+
+@{
+    ViewBag.Title = "Movies";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="display" id="moviesTable">
+    <thead>
+        <tr>
+            <th>
+                MovieName
+            </th>
+            <th>
+                Logo
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Rate
+            </th>
+            <th></th>
+            
+        </tr>
+    </thead>
+
+    
+
+</table>
+@section scripts{
+<script src="~/scripts/datatables/jquery.datatables.min.js"></script>
+<script type="text/javascript">
+        $(document).ready(function () {
+            $("#moviesTable").DataTable({
+                "ajax": {
+                    "url": "/Movies/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "MovieName", "name": "MovieName" },
+                    {
+                        "data":"MovieID",
+                         "name": "MovieID",
+                         "render": function (data) {
+                             return "<img src=@Url.Action("RetrieveImage", "Movies")/" + data + " alt='' style='height:50px; width:50px'/>"
+                         }
+                    },
+                    { "data": "Description", "name": "Description" },
+                    {
+                        "data": "Rates",
+                        "name": "Theaters",
+                        "render": function (val, type, row) {
+                            let theaters = '';
+                            val.forEach((t) => {
+                                theaters += '<option> ' + t.TheaterName + ': ' + t.MovieRate;
+                            });
+                            console.log(theaters);
+                            return "<select>"+ theaters +"</select>"
+                        },
+                        "defaultContent": ""
+                    },
+                    {
+                        "data": "MovieID",
+                        "render": function (data) {
+                            return "<a class='btn btn-default btn-sm' href=@Url.Action("Edit", "Movies")/"+ data +"><i class='fa fa-pencil'></i> Edit</a><a class='btn btn-danger btn-sm' style='margin-left:5px' onclick=Delete('"+ data +"')><i class='fa fa-trash'></i> Delete</a>";
+                        }
+                    }
+
+                ],
+                "bserverSide": true,
+                "processing": true,
+                "filter": false,
+                "orderMulti": false,
+
+            });
+
+        });
+
+    function Delete(id) {
+        if (confirm('Are You Sure to Delete this Movie ?')) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Movies")/' + id,
+                success: function (data) {
+                    if (data.success) {
+                        dataTable.ajax.reload();
+                        $.notify(data.message, {
+                            globalPosition: "top center",
+                            className: "success"
+                        })
+
+                    }
+                }
+
+            });
+        }
+    }
+
+</script>
+    }

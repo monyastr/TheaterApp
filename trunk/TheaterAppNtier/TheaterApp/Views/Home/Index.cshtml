@@ -1,0 +1,75 @@
+﻿
+@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<table class="display" id="homeTable">
+    <thead>
+        <tr>
+            <th>
+                MovieName
+            </th>
+            <th>
+                Logo
+            </th>            
+            <th>
+                Rate
+            </th>
+
+        </tr>
+    </thead>
+
+
+
+</table>
+@section scripts{
+    <script src="~/scripts/datatables/jquery.datatables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#homeTable").DataTable({
+                "bserverSide": true,                
+                "processing": true,
+                "filter": false,
+                "orderMulti": false,
+                "ajax": {
+                    "url": "/Home/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "MovieName", "name": "MovieName" },
+                    { "data":"MovieID",
+                         "name": "MovieID",
+                         "render": function (data) {
+                             return "<img src=@Url.Action("RetrieveImage", "Movies")/" + data + " alt='' style='height:50px; width:50px'/>"
+                         }
+        },
+                    {
+                        "data": "Rates",
+                        "name": "Rate",
+                        "render": function (val, type, row) {
+                            let moviesRate = val.reduce(function (sum, res) {
+                                return sum + res.MovieRate
+                            }, 0);
+                            moviesRate /= Object.keys(val).length;
+                            return moviesRate ? Math.round(moviesRate) : '';
+                        },
+                        "defaultContent": ""
+                    },
+
+
+                ],
+                
+
+            });
+
+        });
+
+
+    </script>
+}
+
+

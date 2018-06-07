@@ -1,0 +1,98 @@
+﻿@model IEnumerable<EntityLayer.Theater>
+
+@{
+    ViewBag.Title = "Theaters";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="display" id="theatersTable">
+    <thead>
+        <tr>
+            <th>
+               Name
+            </th>
+            <th>
+               Address
+            </th>
+            <th>
+                Movies
+            </th>
+            <th></th>
+        </tr>
+    </thead>   
+</table>
+@section scripts{
+    <script src="~/scripts/datatables/jquery.datatables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#theatersTable").DataTable({
+                "ajax": {
+                    "url": "/Theaters/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { 'data': 'Name', 'name': 'Name' },
+                    { 'data': 'Address', 'name': 'Address' },
+                    {
+                        "data": "Rates",
+                        "name": "Movies",
+                        "render": function (val, type, row) {
+                            let movies = '';
+                            val.forEach((m) => {
+                                movies += '<option>' + m.MovieName + ': ' + m.MovieRate ;
+                            });
+                            return "<select>" + movies + "</select>"
+                        },
+                        "defaultContent": ""
+                    },
+                    {
+                        "data": "TheaterID",
+                        "render": function (data) {
+                            return "<a class='btn btn-default btn-sm' href=@Url.Action("Edit","Theaters")/" + data + "><i class='fa fa-pencil'></i> Edit</a><a class='btn btn-danger btn-sm' style='margin-left:5px' onclick=Delete('" + data + "')><i class='fa fa-trash'></i> Delete</a> <a class='btn btn-success btn-sm' href=@Url.Action("AddMovie", "Theaters")/" + data + "><i class='fa fa-plus'></i> Add Movie</a>";
+                                    }
+                    }
+
+                ],
+                "bserverSide": true,
+                "processing": true,
+                "filter": false,
+                "orderMulti": false,
+
+            });
+
+        });
+
+
+
+        function Delete(id) {
+            if (confirm('Are You Sure to Delete this Movie ?')) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete","Theaters")/' + id,
+                success: function (data) {
+                    if (data.success) {
+                        dataTable.ajax.reload();
+
+                        $.notify(data.message, {
+                            globalPosition: "top center",
+                            className: "success"
+                        })
+
+                    }
+                }
+
+            });
+        }
+        }
+    </script>
+}
+
+
+
+    
